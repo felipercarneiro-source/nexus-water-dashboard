@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXUS Water Intelligence — ENGIE | Burger King Brasil</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js"></script>
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --bg2: #111827;
+    --bg3: #1a2236;
+    --card: #141b2d;
+    --card2: #1e2a40;
+    --border: #2a3a5c;
+    --accent: #00c8ff;
+    --accent2: #00e5b0;
+    --accent3: #7c6aff;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --online: #10b981;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --text3: #64748b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    background: linear-gradient(135deg, #0a0e1a 0%, #111827 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo-area { display: flex; align-items: center; gap: 16px; }
+  .logo-badge {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent3) 100%);
+    color: #000;
+    font-weight: 900;
+    font-size: 14px;
+    letter-spacing: 2px;
+    padding: 6px 12px;
+    border-radius: 6px;
+  }
+  .logo-title { font-size: 18px; font-weight: 700; color: var(--text); }
+  .logo-sub { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+  .topbar-right { display: flex; align-items: center; gap: 24px; }
+  .snapshot-badge {
+    background: rgba(0,200,255,0.1);
+    border: 1px solid rgba(0,200,255,0.3);
+    color: var(--accent);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .client-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--card2);
+    border: 1px solid var(--border);
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--text2);
+  }
+  .client-dot { width: 8px; height: 8px; background: var(--online); border-radius: 50%; box-shadow: 0 0 6px var(--online); }
+
+  /* ── MAIN ── */
+  .main { padding: 28px 32px; max-width: 1400px; margin: 0 auto; }
+
+  /* ── SECTION HEADER ── */
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* ── KPI GRID ── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .kpi-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--kpi-color, var(--accent));
+  }
+  .kpi-card:hover { border-color: rgba(0,200,255,0.4); }
+  .kpi-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; }
+  .kpi-value { font-size: 28px; font-weight: 800; color: var(--text); line-height: 1; }
+  .kpi-unit { font-size: 13px; font-weight: 400; color: var(--text2); margin-left: 4px; }
+  .kpi-sub { font-size: 11px; color: var(--text3); margin-top: 6px; }
+  .kpi-icon {
+    position: absolute;
+    top: 16px; right: 16px;
+    font-size: 22px;
+    opacity: 0.25;
+  }
+
+  /* ── AI ALERT BANNER ── */
+  .ai-banner {
+    background: linear-gradient(135deg, rgba(124,106,255,0.1) 0%, rgba(0,229,176,0.05) 100%);
+    border: 1px solid rgba(124,106,255,0.3);
+    border-radius: 12px;
+    padding: 18px 24px;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .ai-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent3), var(--accent2));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .ai-banner-title { font-size: 13px; font-weight: 700; color: var(--accent3); margin-bottom: 6px; }
+  .ai-insights-list { display: flex; flex-direction: column; gap: 4px; }
+  .ai-insight {
+    font-size: 12px;
+    color: var(--text2);
+    padding: 3px 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .ai-insight-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+
+  /* ── TWO COLUMN ── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+
+  /* ── DEVICE TABLE ── */
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .panel-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .panel-title { font-size: 13px; font-weight: 700; color: var(--text); }
+  .panel-count {
+    background: var(--bg3);
+    color: var(--text3);
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    padding: 10px 16px;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text3);
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+  }
+  tbody tr {
+    border-bottom: 1px solid rgba(42,58,92,0.5);
+    transition: background 0.15s;
+  }
+  tbody tr:hover { background: rgba(255,255,255,0.02); }
+  tbody tr:last-child { border-bottom: none; }
+  td {
+    padding: 10px 16px;
+    font-size: 12px;
+    color: var(--text);
+    vertical-align: middle;
+  }
+
+  /* Status chips */
+  .chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .chip-online { background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
+  .chip-warning { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+  .chip-offline { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+  .chip-unknown { background: rgba(100,116,139,0.15); color: #64748b; border: 1px solid rgba(100,116,139,0.3); }
+  .chip-alert { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+  .chip-falha { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .dot-online { background: #10b981; box-shadow: 0 0 4px #10b981; }
+  .dot-warning { background: #f59e0b; }
+  .dot-offline { background: #ef4444; }
+  .dot-unknown { background: #64748b; }
+
+  .sparkline-cell canvas { display: block; }
+
+  /* ── RANKING BARS ── */
+  .rank-item {
+    padding: 12px 20px;
+    border-bottom: 1px solid rgba(42,58,92,0.4);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .rank-item:last-child { border-bottom: none; }
+  .rank-num { font-size: 12px; font-weight: 800; color: var(--text3); min-width: 20px; text-align: right; }
+  .rank-info { flex: 1; min-width: 0; }
+  .rank-name { font-size: 12px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .rank-city { font-size: 10px; color: var(--text3); }
+  .rank-bar-wrap { width: 120px; flex-shrink: 0; }
+  .rank-bar-bg { height: 6px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+  .rank-bar-fill { height: 100%; border-radius: 3px; transition: width 0.8s ease; }
+  .rank-val { font-size: 12px; font-weight: 700; color: var(--text); min-width: 60px; text-align: right; }
+
+  /* ── FOOTER ── */
+  .footer {
+    margin-top: 40px;
+    padding: 24px 32px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .footer-left { font-size: 11px; color: var(--text3); }
+  .footer-left strong { color: var(--text2); }
+  .footer-brand { font-size: 11px; color: var(--text3); text-align: right; }
+  .footer-brand strong { color: var(--accent); }
+
+  /* ── MAP SECTION ── */
+  .state-pills { display: flex; flex-wrap: wrap; gap: 8px; padding: 16px 20px; }
+  .state-pill {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text2);
+  }
+  .state-pill-flag { font-size: 14px; }
+  .state-pill-name { font-weight: 700; color: var(--text); }
+  .state-pill-count { color: var(--accent); font-weight: 700; }
+
+  .twin-mini {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .twin-mini:hover {
+    border-color: rgba(0,200,255,0.4);
+    box-shadow: 0 4px 20px rgba(0,200,255,0.08);
+  }
+  .twin-mini-top { display: flex; align-items: flex-start; justify-content: space-between; }
+  .twin-mini-name { font-size: 11px; font-weight: 700; color: var(--text); line-height: 1.3; }
+  .twin-mini-city { font-size: 10px; color: var(--text3); margin-top: 2px; }
+  .twin-mini-metrics { display: flex; gap: 12px; }
+  .twin-metric { text-align: center; }
+  .twin-metric-val { font-size: 14px; font-weight: 800; color: var(--accent); }
+  .twin-metric-lbl { font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; }
+  .twin-mini-bar { height: 3px; background: var(--bg); border-radius: 2px; overflow: hidden; }
+  .twin-mini-bar-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--accent), var(--accent3)); }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo-area">
+    <div class="logo-badge">NEXUS</div>
+    <div>
+      <div class="logo-title">Water Intelligence</div>
+      <div class="logo-sub">IoT · Digital Twins · AI Analytics</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="snapshot-badge">📸 SNAPSHOT — 15 Mai 2026 · 22:57 BRT</div>
+    <div class="client-badge">
+      <div class="client-dot"></div>
+      <span>ENGIE · Burger King Brasil</span>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- KPIs -->
+  <div class="section-title">Visão Geral da Rede</div>
+  <div class="kpi-grid">
+    <div class="kpi-card" style="--kpi-color: var(--online)">
+      <div class="kpi-icon">📡</div>
+      <div class="kpi-label">Devices Online</div>
+      <div class="kpi-value">15 <span class="kpi-unit">/ 31</span></div>
+      <div class="kpi-sub">⚠️ 16 ainda não implantados</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color: var(--accent)">
+      <div class="kpi-icon">💧</div>
+      <div class="kpi-label">Vazão Total / hora</div>
+      <div class="kpi-value">3.368 <span class="kpi-unit">L/h</span></div>
+      <div class="kpi-sub">Soma de 12 devices ativos</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color: var(--accent3)">
+      <div class="kpi-icon">📊</div>
+      <div class="kpi-label">Consumo Hoje (UTC)</div>
+      <div class="kpi-value">3.114 <span class="kpi-unit">L</span></div>
+      <div class="kpi-sub">A partir da meia-noite UTC</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color: var(--accent2)">
+      <div class="kpi-icon">🏆</div>
+      <div class="kpi-label">Maior Consumidor</div>
+      <div class="kpi-value" style="font-size:16px; padding-top:4px;">Hortolandia</div>
+      <div class="kpi-sub">630 L hoje · 71.678 L acumulado</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color: var(--warn)">
+      <div class="kpi-icon">🔴</div>
+      <div class="kpi-label">Alertas de Vazão Zero</div>
+      <div class="kpi-value" style="color: var(--warn)">4</div>
+      <div class="kpi-sub">Requerem atenção de campo</div>
+    </div>
+  </div>
+
+  <!-- AI INSIGHTS -->
+  <div class="ai-banner">
+    <div class="ai-icon">🤖</div>
+    <div style="flex:1">
+      <div class="ai-banner-title">NEXUS AI Diagnostics — Análise Automática de Anomalias</div>
+      <div class="ai-insights-list">
+        <div class="ai-insight">
+          <div class="ai-insight-dot" style="background: var(--danger)"></div>
+          <span><strong style="color:#ef4444">CRÍTICO:</strong> FS Paulinia (Zamp 26842) e BK/FS SBC - Av Faria Lima (Zamp 20409) apresentam contadores completamente estagnados há mais de 7 dias. Provável falha no cabeamento do sensor de pulso. Requer visita técnica urgente.</span>
+        </div>
+        <div class="ai-insight">
+          <div class="ai-insight-dot" style="background: var(--warn)"></div>
+          <span><strong style="color:#f59e0b">ATENÇÃO:</strong> BK/FS SP - Av Helio Pellegrino (Zamp 15374) está marcado como "Falha" e registra apenas 2 L/h hoje contra 361 L no dia anterior — queda de 99,4%. Possível entupimento ou fecho d'água fechado.</span>
+        </div>
+        <div class="ai-insight">
+          <div class="ai-insight-dot" style="background: var(--warn)"></div>
+          <span><strong style="color:#f59e0b">ATENÇÃO:</strong> BK/FS SP - Av Moreira Guimarães (Zamp 23740) registrou 85 L ontem e apenas 5 L/h agora — consumo anormalmente baixo para um restaurante em operação. Verificar operação da loja.</span>
+        </div>
+        <div class="ai-insight">
+          <div class="ai-insight-dot" style="background: var(--online)"></div>
+          <span><strong style="color:#10b981">NORMAL:</strong> Curitiba lidera vazão com 1.575 L/h (936 L ontem). Hortolandia, Santo André e Sumaré operando dentro da faixa esperada para restaurantes BK/FS em horário comercial.</span>
+        </div>
+        <div class="ai-insight">
+          <div class="ai-insight-dot" style="background: var(--text3)"></div>
+          <span><strong style="color:var(--text2)">INFORMAÇÃO:</strong> 16 devices com status "Desconhecido" estão aguardando implantação em campo. A rede crescerá de 48% para 100% de cobertura quando todos forem instalados.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DEVICE TABLE + RANKING -->
+  <div class="two-col">
+
+    <!-- TABLE -->
+    <div class="panel" style="grid-column: span 1">
+      <div class="panel-header">
+        <div class="panel-title">🏪 Devices Online — Status Tempo Real</div>
+        <div class="panel-count">15 reportando</div>
+      </div>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Loja</th>
+              <th>Cidade / UF</th>
+              <th>Status</th>
+              <th>Fluxo /h</th>
+              <th>Hoje (L)</th>
+              <th>Bat.</th>
+            </tr>
+          </thead>
+          <tbody id="device-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- RANKING -->
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">🏆 Ranking — Consumo Hoje</div>
+          <div class="panel-count">Top 10</div>
+        </div>
+        <div id="ranking-list"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- DIGITAL TWINS MINI GRID -->
+  <div class="section-title" style="margin-bottom: 16px;">Digital Twins — Visão Individual</div>
+  <div id="twins-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 32px;"></div>
+
+  <!-- COVERAGE BY STATE -->
+  <div class="panel" style="margin-bottom: 28px;">
+    <div class="panel-header">
+      <div class="panel-title">🗺️ Cobertura Geográfica — Rede ENGIE / Burger King</div>
+      <div class="panel-count">5 estados</div>
+    </div>
+    <div class="state-pills">
+      <div class="state-pill">
+        <span class="state-pill-flag">🔵</span>
+        <span class="state-pill-name">SP</span>
+        <span>São Paulo</span>
+        <span class="state-pill-count">21 devices</span>
+      </div>
+      <div class="state-pill">
+        <span class="state-pill-flag">🟢</span>
+        <span class="state-pill-name">RJ</span>
+        <span>Rio de Janeiro</span>
+        <span class="state-pill-count">4 devices</span>
+      </div>
+      <div class="state-pill">
+        <span class="state-pill-flag">🟣</span>
+        <span class="state-pill-name">PR</span>
+        <span>Paraná</span>
+        <span class="state-pill-count">1 device</span>
+      </div>
+      <div class="state-pill">
+        <span class="state-pill-flag">🟡</span>
+        <span class="state-pill-name">RS</span>
+        <span>Rio Grande do Sul</span>
+        <span class="state-pill-count">1 device (teste)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FLOW CHART -->
+  <div class="panel" style="margin-bottom: 28px;">
+    <div class="panel-header">
+      <div class="panel-title">📈 Consumo por Loja — Histórico Recente (últimas leituras)</div>
+    </div>
+    <div style="padding: 20px; height: 280px;">
+      <canvas id="flowChart"></canvas>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="footer-left">
+    <strong>NEXUS IoT Platform</strong> · Dados coletados via LoRaWAN · Rede Everynet ATC<br>
+    <span>Dispositivos: Milesight EM300-DI · Protocolo: LoRaWAN 1.0.x · Frequência: Sub-GHz 915 MHz</span>
+  </div>
+  <div class="footer-brand">
+    Powered by <strong>NEXUS</strong><br>
+    <span>nexus.iot · Digital Twins + AI · © 2026</span>
+  </div>
+</div>
+
+<script>
+// ─── DADOS EMBUTIDOS (snapshot 15 Mai 2026 · 22:57 BRT) ───
+const DEVICES = [
+  {"eui":"24e124136f485432","nome":"BK/FS CURITIBA - AV FLORIANO PEIXOTO","cidade":"Curitiba","uf":"PR","zamp":"22511","flag":"","status":"online","silence_min":27,"battery":100,"water_current":22298,"water_1h_ago":20723,"flow_1h":1575,"daily":{"2026-05-15":936,"2026-05-16":184},"readings":[{"ts":1778895040,"water":22298},{"ts":1778894140,"water":22114},{"ts":1778887840,"water":20723},{"ts":1778884240,"water":19787}]},
+  {"eui":"24e124136f514730","nome":"FS HORTOLANDIA - AV SANTANA 970","cidade":"Hortolandia","uf":"SP","zamp":"25450","flag":"","status":"online","silence_min":6,"battery":100,"water_current":71678,"water_1h_ago":71162,"flow_1h":516,"daily":{"2026-05-15":512,"2026-05-16":630},"readings":[{"ts":1778896304,"water":71678},{"ts":1778893604,"water":71408},{"ts":1778890904,"water":71162},{"ts":1778887304,"water":70765},{"ts":1778885504,"water":70610},{"ts":1778882804,"water":70342}]},
+  {"eui":"24e124136f515415","nome":"BK/FS SANTO ANDRE - AV DOM PEDRO II","cidade":"Santo Andre","uf":"SP","zamp":"22516","flag":"","status":"online","silence_min":3,"battery":100,"water_current":6617,"water_1h_ago":6280,"flow_1h":337,"daily":{"2026-05-15":266,"2026-05-16":468},"readings":[{"ts":1778896455,"water":6617},{"ts":1778894655,"water":6520},{"ts":1778892855,"water":6280},{"ts":1778891055,"water":6182},{"ts":1778888355,"water":6092},{"ts":1778885655,"water":5983}]},
+  {"eui":"24e124136f515256","nome":"BK/FS SUMARE - AV REBOUCAS 3017","cidade":"Sumare","uf":"SP","zamp":"22706","flag":"","status":"online","silence_min":13,"battery":100,"water_current":2232,"water_1h_ago":1964,"flow_1h":268,"daily":{"2026-05-15":285,"2026-05-16":268},"readings":[{"ts":1778895892,"water":2232},{"ts":1778894992,"water":2232},{"ts":1778894092,"water":1964},{"ts":1778887792,"water":1710},{"ts":1778883292,"water":1456}]},
+  {"eui":"24e124136f514716","nome":"BK/FS SCS - EST DAS LAGRIMAS 1986","cidade":"Sao Caetano do Sul","uf":"SP","zamp":"19630","flag":"","status":"online","silence_min":9,"battery":100,"water_current":4145,"water_1h_ago":3987,"flow_1h":158,"daily":{"2026-05-15":223,"2026-05-16":211},"readings":[{"ts":1778896124,"water":4145},{"ts":1778895224,"water":4101},{"ts":1778892524,"water":3987},{"ts":1778889824,"water":3934},{"ts":1778888024,"water":3871}]},
+  {"eui":"24e124136f485429","nome":"FS PCA PANAMERICANA 99","cidade":"Sao Paulo","uf":"SP","zamp":"28345","flag":"","status":"online","silence_min":8,"battery":100,"water_current":10475,"water_1h_ago":10345,"flow_1h":130,"daily":{"2026-05-15":127,"2026-05-16":178},"readings":[{"ts":1778896164,"water":10475},{"ts":1778895264,"water":10438},{"ts":1778893464,"water":10394},{"ts":1778892564,"water":10345},{"ts":1778890765,"water":10325},{"ts":1778887165,"water":10286}]},
+  {"eui":"24e124136f515264","nome":"BK/FS AMERICANA - R JULIO PRESTES","cidade":"Americana","uf":"SP","zamp":"19617","flag":"","status":"online","silence_min":4,"battery":100,"water_current":12534,"water_1h_ago":12410,"flow_1h":124,"daily":{"2026-05-15":435,"2026-05-16":493},"readings":[{"ts":1778896452,"water":12534},{"ts":1778894652,"water":12486},{"ts":1778892852,"water":12410},{"ts":1778891052,"water":12176},{"ts":1778888352,"water":11950},{"ts":1778885652,"water":11720}]},
+  {"eui":"24e124136f515443","nome":"BK/FS SBC - AV PRESTES MAIA 1001","cidade":"Sao Bernardo do Campo","uf":"SP","zamp":"17973","flag":"","status":"online","silence_min":11,"battery":100,"water_current":10990,"water_1h_ago":10880,"flow_1h":110,"daily":{"2026-05-15":200,"2026-05-16":242},"readings":[{"ts":1778895983,"water":10990},{"ts":1778894183,"water":10934},{"ts":1778892383,"water":10880},{"ts":1778890583,"water":10798},{"ts":1778888783,"water":10670}]},
+  {"eui":"24e124136f515444","nome":"BK/FS BARUERI - AV ALPHAVILLE","cidade":"Barueri","uf":"SP","zamp":"17764","flag":"","status":"online","silence_min":13,"battery":100,"water_current":3787,"water_1h_ago":3681,"flow_1h":106,"daily":{"2026-05-15":489,"2026-05-16":371},"readings":[{"ts":1778895874,"water":3787},{"ts":1778894074,"water":3787},{"ts":1778892274,"water":3681},{"ts":1778891374,"water":3572},{"ts":1778890474,"water":3416},{"ts":1778885074,"water":3178}]},
+  {"eui":"24e124136f515258","nome":"BK/FS DUQUE DE CAXIAS - BRIG LIMA E SILVA","cidade":"Duque de Caxias","uf":"RJ","zamp":"24743","flag":"","status":"online","silence_min":1,"battery":100,"water_current":399,"water_1h_ago":362,"flow_1h":37,"daily":{"2026-05-15":60,"2026-05-16":62},"readings":[{"ts":1778896579,"water":399},{"ts":1778894779,"water":381},{"ts":1778892979,"water":362},{"ts":1778891179,"water":345},{"ts":1778889379,"water":329},{"ts":1778885779,"water":298}]},
+  {"eui":"24e124136f515446","nome":"BK/FS SP - AV MOREIRA GUIMARAES 700","cidade":"Sao Paulo","uf":"SP","zamp":"23740","flag":"","status":"online","silence_min":1,"battery":100,"water_current":16095,"water_1h_ago":16090,"flow_1h":5,"daily":{"2026-05-15":85,"2026-05-16":5},"readings":[{"ts":1778896612,"water":16095},{"ts":1778895712,"water":16095},{"ts":1778893912,"water":16090},{"ts":1778892112,"water":16090},{"ts":1778891212,"water":16090}]},
+  {"eui":"24e124136f515466","nome":"BK/FS SP - AV HELIO PELLEGRINO 1072","cidade":"Sao Paulo","uf":"SP","zamp":"15374","flag":"Falha","status":"online","silence_min":11,"battery":100,"water_current":16351,"water_1h_ago":16349,"flow_1h":2,"daily":{"2026-05-15":361,"2026-05-16":2},"readings":[{"ts":1778896014,"water":16351},{"ts":1778894214,"water":16349},{"ts":1778893314,"water":16349},{"ts":1778887914,"water":16325},{"ts":1778885214,"water":16188}]},
+  {"eui":"24e124136f515288","nome":"BK/BARRA SHOP SUL - Teste Berrini","cidade":"Porto Alegre","uf":"RS","zamp":"19402","flag":"","status":"online","silence_min":5,"battery":100,"water_current":4,"water_1h_ago":4,"flow_1h":0,"daily":{"2026-05-15":0,"2026-05-16":0},"readings":[{"ts":1778896373,"water":4},{"ts":1778895473,"water":4},{"ts":1778891873,"water":4}],"is_berrini":true},
+  {"eui":"24e124136f515423","nome":"FS PAULINIA - AV HEITOR NASCIMENTO","cidade":"Paulinia","uf":"SP","zamp":"26842","flag":"","status":"online","silence_min":12,"battery":100,"water_current":1902,"water_1h_ago":1902,"flow_1h":0,"daily":{"2026-05-15":0,"2026-05-16":0},"readings":[{"ts":1778895939,"water":1902},{"ts":1778894139,"water":1902},{"ts":1778891439,"water":1902},{"ts":1778888739,"water":1902}]},
+  {"eui":"24e124136f515479","nome":"BK/FS SBC - AV BRIG FARIA LIMA","cidade":"Sao Bernardo do Campo","uf":"SP","zamp":"20409","flag":"","status":"online","silence_min":5,"battery":100,"water_current":7137,"water_1h_ago":7137,"flow_1h":0,"daily":{"2026-05-15":146,"2026-05-16":0},"readings":[{"ts":1778896344,"water":7137},{"ts":1778894544,"water":7137},{"ts":1778891845,"water":7137},{"ts":1778888245,"water":7124},{"ts":1778885545,"water":7024}]}
+];
+
+const TODAY_KEY = '2026-05-16';
+
+function flowColor(flow) {
+  if (flow > 300) return '#10b981';
+  if (flow > 50) return '#00c8ff';
+  if (flow > 0) return '#f59e0b';
+  return '#ef4444';
+}
+
+function shortName(nome) {
+  return nome
+    .replace(/^BK\/FS\s+/,'').replace(/^FS\s+/,'').replace(/^BK\//,'')
+    .replace(/\s*-\s*.*/,'')
+    .trim();
+}
+
+// ─── BUILD TABLE ───
+const tbody = document.getElementById('device-table-body');
+DEVICES.forEach(d => {
+  const today = d.daily[TODAY_KEY] ?? 0;
+  const flow = d.flow_1h ?? 0;
+  const isBerrini = d.is_berrini;
+  let statusChip = '';
+  if (d.flag === 'Falha') statusChip = '<span class="chip chip-falha"><span class="status-dot dot-offline"></span>FALHA</span>';
+  else if (isBerrini) statusChip = '<span class="chip chip-warning">TESTE</span>';
+  else if (flow === 0 && d.water_current > 0) statusChip = '<span class="chip chip-alert">⚠ ZERO</span>';
+  else statusChip = '<span class="chip chip-online"><span class="status-dot dot-online"></span>ONLINE</span>';
+
+  const displayName = shortName(d.nome);
+  const flowStr = flow > 0 ? `<span style="color:${flowColor(flow)};font-weight:700">${flow.toLocaleString('pt-BR')} L</span>` : `<span style="color:#ef4444;font-weight:700">0 L</span>`;
+
+  const row = document.createElement('tr');
+  row.innerHTML = `
+    <td style="max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:11px" title="${d.nome}">${displayName}</td>
+    <td style="font-size:11px; color:var(--text2)">${d.cidade} · ${d.uf}</td>
+    <td>${statusChip}</td>
+    <td>${flowStr}</td>
+    <td style="font-weight:600; color:${today > 0 ? 'var(--accent)' : 'var(--text3)'}">${today.toLocaleString('pt-BR')}</td>
+    <td style="color:${(d.battery??0) > 50 ? 'var(--online)' : 'var(--warn)'}">${d.battery != null ? d.battery+'%' : '–'}</td>
+  `;
+  tbody.appendChild(row);
+});
+
+// ─── RANKING ───
+const sorted = [...DEVICES]
+  .filter(d => d.daily[TODAY_KEY] != null)
+  .sort((a,b) => (b.daily[TODAY_KEY]??0) - (a.daily[TODAY_KEY]??0))
+  .slice(0, 10);
+
+const maxConsumption = sorted[0]?.daily[TODAY_KEY] ?? 1;
+const rankingEl = document.getElementById('ranking-list');
+const rankColors = ['#f59e0b','#94a3b8','#cd7f32','#00c8ff','#00c8ff','#00c8ff','#00c8ff','#00c8ff','#00c8ff','#00c8ff'];
+
+sorted.forEach((d, i) => {
+  const val = d.daily[TODAY_KEY] ?? 0;
+  const pct = Math.round((val / maxConsumption) * 100);
+  const el = document.createElement('div');
+  el.className = 'rank-item';
+  el.innerHTML = `
+    <div class="rank-num">${i+1}</div>
+    <div class="rank-info">
+      <div class="rank-name">${shortName(d.nome)}</div>
+      <div class="rank-city">${d.cidade} · ${d.uf}</div>
+    </div>
+    <div class="rank-bar-wrap">
+      <div class="rank-bar-bg">
+        <div class="rank-bar-fill" style="width:${pct}%; background:${rankColors[i]||'#00c8ff'}"></div>
+      </div>
+    </div>
+    <div class="rank-val">${val.toLocaleString('pt-BR')} L</div>
+  `;
+  rankingEl.appendChild(el);
+});
+
+// ─── DIGITAL TWINS MINI ───
+const twinsGrid = document.getElementById('twins-grid');
+const activeDevices = DEVICES.filter(d => d.water_current != null);
+const maxFlow = Math.max(...activeDevices.map(d => d.flow_1h ?? 0), 1);
+
+activeDevices.forEach(d => {
+  const flow = d.flow_1h ?? 0;
+  const today = d.daily[TODAY_KEY] ?? 0;
+  const pct = Math.min(100, Math.round((flow / maxFlow) * 100));
+  const hasAlert = flow === 0 && !d.is_berrini;
+  const isFalha = d.flag === 'Falha';
+
+  const card = document.createElement('div');
+  card.className = 'twin-mini';
+  if (hasAlert || isFalha) card.style.borderColor = 'rgba(239,68,68,0.4)';
+
+  card.innerHTML = `
+    <div class="twin-mini-top">
+      <div>
+        <div class="twin-mini-name">${shortName(d.nome)}</div>
+        <div class="twin-mini-city">${d.cidade} · ${d.uf}${d.is_berrini?' · [TESTE]':''}</div>
+      </div>
+      <div>${isFalha ? '🔴' : hasAlert ? '⚠️' : '🟢'}</div>
+    </div>
+    <div class="twin-mini-metrics">
+      <div class="twin-metric">
+        <div class="twin-metric-val" style="color:${flowColor(flow)}">${flow.toLocaleString('pt-BR')}</div>
+        <div class="twin-metric-lbl">L/hora</div>
+      </div>
+      <div class="twin-metric">
+        <div class="twin-metric-val" style="color:var(--accent2)">${today.toLocaleString('pt-BR')}</div>
+        <div class="twin-metric-lbl">L hoje</div>
+      </div>
+      <div class="twin-metric">
+        <div class="twin-metric-val" style="font-size:11px; color:var(--text3)">${(d.water_current/1000).toFixed(1)}k</div>
+        <div class="twin-metric-lbl">total</div>
+      </div>
+    </div>
+    <div class="twin-mini-bar">
+      <div class="twin-mini-bar-fill" style="width:${pct}%; background:${isFalha||hasAlert?'rgba(239,68,68,0.6)':''}"></div>
+    </div>
+  `;
+  twinsGrid.appendChild(card);
+});
+
+// ─── FLOW CHART ───
+const chartDevices = DEVICES
+  .filter(d => (d.flow_1h ?? 0) > 0)
+  .sort((a,b) => (b.flow_1h??0) - (a.flow_1h??0));
+
+const ctx = document.getElementById('flowChart').getContext('2d');
+new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: chartDevices.map(d => shortName(d.nome)),
+    datasets: [{
+      label: 'Vazão L/h',
+      data: chartDevices.map(d => d.flow_1h ?? 0),
+      backgroundColor: chartDevices.map(d => {
+        const f = d.flow_1h ?? 0;
+        if (f > 300) return 'rgba(16,185,129,0.7)';
+        if (f > 100) return 'rgba(0,200,255,0.7)';
+        return 'rgba(245,158,11,0.7)';
+      }),
+      borderColor: chartDevices.map(d => {
+        const f = d.flow_1h ?? 0;
+        if (f > 300) return '#10b981';
+        if (f > 100) return '#00c8ff';
+        return '#f59e0b';
+      }),
+      borderWidth: 1,
+      borderRadius: 4
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: ctx => ` ${ctx.raw.toLocaleString('pt-BR')} L/hora`
+        }
+      }
+    },
+    scales: {
+      x: {
+        ticks: { color: '#94a3b8', font: { size: 10 } },
+        grid: { color: 'rgba(42,58,92,0.4)' }
+      },
+      y: {
+        ticks: { color: '#94a3b8', font: { size: 10 } },
+        grid: { color: 'rgba(42,58,92,0.4)' },
+        title: { display: true, text: 'L/hora', color: '#64748b', font: { size: 10 } }
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>
